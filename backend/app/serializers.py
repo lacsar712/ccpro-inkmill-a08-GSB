@@ -2,6 +2,7 @@ from decimal import Decimal
 
 from app.models.grind_pass import GrindPass
 from app.models.mill import Mill
+from app.models.process_card import ProcessCard
 from app.models.user import User
 from app.models.viscosity_sample import ViscositySample
 from app.models.workshop import Workshop
@@ -63,4 +64,15 @@ def grind_pass_json(row: GrindPass) -> dict:
         "durationMin": _num(row.duration_min) or 0,
         "mediaType": row.media_type,
         "operatorName": row.operator_name,
+    }
+
+
+def process_card_json(row: ProcessCard) -> dict:
+    return {
+        "id": row.id,
+        "millId": row.mill_id,
+        "versionNo": row.version_no,
+        "content": row.content,
+        "status": row.status,
+        "createdAt": dt_to_json(row.created_at),
     }

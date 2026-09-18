@@ -1,6 +1,6 @@
 # InkMill-01 · 油墨研磨台账
 
-面向印刷油墨研磨车间的**研磨机状态、粘度取样与研磨遍次**台账系统。  
+面向印刷油墨研磨车间的**研磨机状态、粘度取样、研磨遍次与研磨工艺卡版本**台账系统。  
 **不是**库存、电商或 CMS 场景。
 
 ## 技术栈
@@ -28,13 +28,29 @@ MySQL 连接：`inkmill` / `inkmill` / `inkmill`（库名/用户/密码）
 - `admin` — 管理员
 - `grinder` — 研磨工
 
+Seed 数据中研磨机 **M-01** 含工艺卡 **v1（published）** 与 **v2（draft）** 各一张。
+
 ## 领域实体（JSON 驼峰）
 
 1. **Workshop**：`name`, `site`, `notes`
 2. **Mill**：`workshopId`, `millCode`（同车间唯一）, `pigmentBase`, `bowlLiters`, `status`（`grinding` \| `idle` \| `wash`）
 3. **ViscositySample**：`millId`, `sampledAt`, `viscosityPaS`（须 &gt; 0，否则 HTTP 400）, `tempC`, `notes`
 4. **GrindPass**：`millId`, `startedAt`, `passNo`（≥ 1）, `durationMin`（&gt; 0）, `mediaType`, `operatorName`
-5. **Dashboard**：`workshopTotal`, `grindingMillCount`, `samplesLast24h`, `passesLast7d`
+5. **ProcessCard（研磨工艺卡）**：挂在 Mill 下，`millId`, `versionNo`（正整数，同机唯一）, `content`, `status`（`draft` \| `published` \| `obsolete`，新建恒为 `draft`）。同一 Mill 同时最多一个 `published`，发布新版本时旧 published 自动置为 `obsolete`；仅 draft 可编辑/删除。
+6. **Dashboard**：`workshopTotal`, `grindingMillCount`, `samplesLast24h`, `passesLast7d`
+
+### 工艺卡 API（`/api/process-cards`，均需登录）
+
+| 方法 & 路径 | 说明 |
+|-------------|------|
+| `GET /api/process-cards?millId=<id>` | 版本列表，按机台过滤（不传 millId 则全部），版本号倒序 |
+| `POST /api/process-cards` | 新建（正文 `millId` / `versionNo` / `content`，状态恒为 draft） |
+| `GET /api/process-cards/<id>` | 单张详情 |
+| `PUT /api/process-cards/<id>` | 编辑（仅 draft；同机版本号冲突返回 400） |
+| `DELETE /api/process-cards/<id>` | 删除（仅 draft） |
+| `POST /api/process-cards/<id>/publish` | 发布：原子地把该机台旧 published 置为 obsolete，再置当前卡为 published |
+
+前端：侧栏「工艺卡」查看版本列表与发布；研磨机页每行有「工艺卡」按钮，可直接跳到该机台的版本列表。
 
 ## 快速启动（Docker）
 

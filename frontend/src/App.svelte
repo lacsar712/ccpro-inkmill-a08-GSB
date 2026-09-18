@@ -6,18 +6,32 @@
   import Mills from './routes/Mills.svelte';
   import ViscositySamples from './routes/ViscositySamples.svelte';
   import GrindPasses from './routes/GrindPasses.svelte';
+  import ProcessCards from './routes/ProcessCards.svelte';
 
-  type PageId = 'dashboard' | 'workshops' | 'mills' | 'samples' | 'passes';
+  type PageId = 'dashboard' | 'workshops' | 'mills' | 'samples' | 'passes' | 'cards';
 
   let page: PageId = 'dashboard';
+  let cardMillFilter: number | null = null;
 
   const nav: { id: PageId; label: string }[] = [
     { id: 'dashboard', label: '仪表盘' },
     { id: 'workshops', label: '车间' },
     { id: 'mills', label: '研磨机' },
+    { id: 'cards', label: '工艺卡' },
     { id: 'samples', label: '粘度取样' },
     { id: 'passes', label: '研磨遍次' },
   ];
+
+  function go(id: PageId) {
+    // 从侧栏进入工艺卡 = 全部机台；从研磨机页跳转才带机台过滤
+    if (id === 'cards') cardMillFilter = null;
+    page = id;
+  }
+
+  function openCards(event: CustomEvent<number>) {
+    cardMillFilter = event.detail;
+    page = 'cards';
+  }
 
   function logout() {
     clearSession();
@@ -39,7 +53,7 @@
       </div>
       <nav>
         {#each nav as item}
-          <button class:active={page === item.id} on:click={() => (page = item.id)}>
+          <button class:active={page === item.id} on:click={() => go(item.id)}>
             {item.label}
           </button>
         {/each}
@@ -56,7 +70,9 @@
       {:else if page === 'workshops'}
         <Workshops />
       {:else if page === 'mills'}
-        <Mills />
+        <Mills on:view-cards={openCards} />
+      {:else if page === 'cards'}
+        <ProcessCards bind:millFilter={cardMillFilter} />
       {:else if page === 'samples'}
         <ViscositySamples />
       {:else}

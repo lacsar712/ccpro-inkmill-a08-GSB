@@ -1,8 +1,11 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { createEventDispatcher } from 'svelte';
   import { api } from '../lib/api';
   import { millStatusLabel } from '../lib/labels';
   import type { Mill, MillStatus, Workshop } from '../lib/types';
+
+  const dispatch = createEventDispatcher<{ 'view-cards': number }>();
 
   let rows: Mill[] = [];
   let workshops: Workshop[] = [];
@@ -155,6 +158,7 @@
           <td>{row.bowlLiters}</td>
           <td><span class="badge {row.status}">{millStatusLabel[row.status]}</span></td>
           <td class="ops">
+            <button class="link-btn" on:click={() => dispatch('view-cards', row.id)}>工艺卡</button>
             <button class="link-btn" on:click={() => edit(row)}>编辑</button>
             <button class="link-btn danger" on:click={() => remove(row.id)}>删除</button>
           </td>
