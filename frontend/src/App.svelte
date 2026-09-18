@@ -1,13 +1,15 @@
 <script lang="ts">
   import { token, user, clearSession } from './lib/auth';
+  import { processCardMillId } from './lib/nav';
   import Login from './routes/Login.svelte';
   import Dashboard from './routes/Dashboard.svelte';
   import Workshops from './routes/Workshops.svelte';
   import Mills from './routes/Mills.svelte';
   import ViscositySamples from './routes/ViscositySamples.svelte';
   import GrindPasses from './routes/GrindPasses.svelte';
+  import ProcessCards from './routes/ProcessCards.svelte';
 
-  type PageId = 'dashboard' | 'workshops' | 'mills' | 'samples' | 'passes';
+  type PageId = 'dashboard' | 'workshops' | 'mills' | 'samples' | 'passes' | 'cards';
 
   let page: PageId = 'dashboard';
 
@@ -17,7 +19,13 @@
     { id: 'mills', label: '研磨机' },
     { id: 'samples', label: '粘度取样' },
     { id: 'passes', label: '研磨遍次' },
+    { id: 'cards', label: '工艺卡' },
   ];
+
+  function openCards(e: CustomEvent<number>) {
+    processCardMillId.set(e.detail);
+    page = 'cards';
+  }
 
   function logout() {
     clearSession();
@@ -56,11 +64,13 @@
       {:else if page === 'workshops'}
         <Workshops />
       {:else if page === 'mills'}
-        <Mills />
+        <Mills on:openCards={openCards} />
       {:else if page === 'samples'}
         <ViscositySamples />
-      {:else}
+      {:else if page === 'passes'}
         <GrindPasses />
+      {:else}
+        <ProcessCards />
       {/if}
     </main>
   </div>

@@ -5,6 +5,7 @@ from app.auth import hash_password
 from app.database import SessionLocal
 from app.models.grind_pass import GrindPass
 from app.models.mill import Mill
+from app.models.process_card import ProcessCard
 from app.models.user import User
 from app.models.viscosity_sample import ViscositySample
 from app.models.workshop import Workshop
@@ -105,6 +106,24 @@ def seed() -> None:
                         duration_min=Decimal("60.00"),
                         media_type="1.0mm 玻璃珠",
                         operator_name="李工",
+                    ),
+                    ProcessCard(
+                        mill_id=m1.id,
+                        version_no=1,
+                        content=(
+                            "酞菁蓝载体标准工艺：0.8mm 锆珠，填充率 70%，"
+                            "线速度 12 m/s，进料温度 ≤ 35℃，目标粘度 9~13 Pa·s，研磨 2 遍。"
+                        ),
+                        status="published",
+                    ),
+                    ProcessCard(
+                        mill_id=m1.id,
+                        version_no=2,
+                        content=(
+                            "酞菁蓝载体工艺(草案)：填充率提升至 75%，"
+                            "线速度 13 m/s，目标粘度 8~12 Pa·s，研磨 2 遍，待评审发布。"
+                        ),
+                        status="draft",
                     ),
                 ]
             )

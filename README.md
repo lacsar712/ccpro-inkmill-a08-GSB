@@ -34,7 +34,18 @@ MySQL 连接：`inkmill` / `inkmill` / `inkmill`（库名/用户/密码）
 2. **Mill**：`workshopId`, `millCode`（同车间唯一）, `pigmentBase`, `bowlLiters`, `status`（`grinding` \| `idle` \| `wash`）
 3. **ViscositySample**：`millId`, `sampledAt`, `viscosityPaS`（须 &gt; 0，否则 HTTP 400）, `tempC`, `notes`
 4. **GrindPass**：`millId`, `startedAt`, `passNo`（≥ 1）, `durationMin`（&gt; 0）, `mediaType`, `operatorName`
-5. **Dashboard**：`workshopTotal`, `grindingMillCount`, `samplesLast24h`, `passesLast7d`
+5. **ProcessCard**：`millId`, `versionNo`（≥ 1 整数，同机唯一）, `content`, `status`（`draft` \| `published` \| `obsolete`）
+6. **Dashboard**：`workshopTotal`, `grindingMillCount`, `samplesLast24h`, `passesLast7d`
+
+## 工艺卡版本管理
+
+工艺卡挂在研磨机（Mill）下，按 `versionNo` 管理多版本：
+
+- 同一台研磨机的 `versionNo` 唯一（数据库唯一约束，冲突返回 HTTP 400）。
+- 同一台研磨机任一时刻最多一个 `published` 版本；发布新版本时，旧 `published` 自动置为 `obsolete`。
+- `GET /api/process-cards?millId=<id>` 按机台列出版本；`POST /api/process-cards/<id>/publish` 发布指定版本。
+- 前端「研磨机」页每行可跳转该机台的工艺卡版本列表；「工艺卡」页提供版本 CRUD 与发布按钮。
+- Seed 数据：M-01 含 1 个已发布版本（V1）与 1 个草稿版本（V2）。
 
 ## 快速启动（Docker）
 

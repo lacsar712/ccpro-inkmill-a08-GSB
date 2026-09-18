@@ -44,6 +44,17 @@ export interface GrindPass {
   operatorName: string;
 }
 
+export type ProcessCardStatus = 'draft' | 'published' | 'obsolete';
+
+export interface ProcessCard {
+  id: number;
+  millId: number;
+  versionNo: number;
+  content: string;
+  status: ProcessCardStatus;
+  createdAt: string | null;
+}
+
 export interface DashboardStats {
   workshopTotal: number;
   grindingMillCount: number;
